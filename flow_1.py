@@ -7,7 +7,9 @@ import time
 # -----------------------------
 def connect_program():
 
-    app = Application(backend="uia").connect(title_re=".*Riposte POS Application.*")
+    EXE_PATH = r"C:\Program Files (x86)\EssentialCP\EGDesktop-CP.exe"
+
+    app = Application(backend="uia").connect(path=EXE_PATH)
     main = app.window(title_re=".*Riposte POS Application.*")
 
     main.wait("visible", timeout=30)
