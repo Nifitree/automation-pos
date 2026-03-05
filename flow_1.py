@@ -7,8 +7,8 @@ import time
 # -----------------------------
 def connect_program():
 
-    app = Application(backend="uia").connect(title_re=".*Escher Retail.*")
-    main = app.window(title_re=".*Escher Retail.*")
+    app = Application(backend="uia").connect(title_re=".*Riposte POS Application.*")
+    main = app.window(title_re=".*Riposte POS Application.*")
 
     main.wait("visible", timeout=30)
 
