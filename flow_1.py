@@ -1,5 +1,7 @@
 from pywinauto import Application
+import configparser
 import time
+import os
 
 
 # -----------------------------
@@ -7,10 +9,14 @@ import time
 # -----------------------------
 def connect_program():
 
+    CONFIG = configparser.ConfigParser()
+    CONFIG.read(os.path.join(os.path.dirname(__file__), "config.ini"), encoding="utf-8")
+
     EXE_PATH = r"C:\Program Files (x86)\EssentialCP\EGDesktop-CP.exe"
+    WINDOW_TITLE = CONFIG.get("APP", "WindowTitle", fallback=".*Riposte POS Application.*")
 
     app = Application(backend="uia").connect(path=EXE_PATH)
-    main = app.window(title_re=".*Riposte POS Application.*")
+    main = app.window(title_re=WINDOW_TITLE)
 
     main.wait("visible", timeout=30)
 
