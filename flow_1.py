@@ -1,6 +1,5 @@
 from pywinauto import Application
 import time
-import re
 
 
 # -----------------------------
@@ -8,101 +7,112 @@ import re
 # -----------------------------
 def connect_program():
 
-    app = Application(backend="uia").connect(title_re=".*POS.*")
-    main_window = app.window(title_re=".*POS.*")
+    app = Application(backend="uia").connect(title_re=".*Escher Retail.*")
+    main = app.window(title_re=".*Escher Retail.*")
 
-    main_window.wait("visible", timeout=20)
+    main.wait("visible", timeout=30)
 
-    return app, main_window
+    return app, main
 
 
 # -----------------------------
-# FLOW 1 : CREATE RECEIPT
+# FLOW : รับฝากสิ่งของ
 # -----------------------------
-def create_receipt(main):
+def send_parcel(main):
 
-    print("เริ่ม Flow 1 : ออกใบเสร็จ")
+    # เข้าหน้า รับฝากสิ่งของ
+    main.child_window(title="รับฝากสิ่งของ").click()
+    time.sleep(2)
 
-    # 1 เลือกบริการ
-    main.child_window(title="เลือกบริการ").click()
-    time.sleep(1)
-
-    main.child_window(title="ไปรษณีย์ในประเทศ").click()
-    time.sleep(1)
-
-    # 2 กดออกใบเสร็จ
-    main.child_window(title="ออกใบเสร็จ").click()
-
+    # อ่านบัตรประชาชน
+    main.child_window(title="อ่านบัตรประชาชน").click()
     time.sleep(3)
 
-    # 3 อ่านเลข TR จาก popup หรือ textbox
-    popup = main.child_window(title_re=".*สำเร็จ.*")
-
-    popup.wait("visible", timeout=10)
-
-    text = popup.window_text()
-
-    print("ข้อความ popup :", text)
-
-    tr_match = re.search(r'TR\d+', text)
-
-    if tr_match:
-        tr_number = tr_match.group()
-    else:
-        raise Exception("ไม่พบเลข TR")
-
-    print("TR NUMBER =", tr_number)
-
-    # ปิด popup
-    popup.child_window(title="ตกลง").click()
-
+    # กรอกรหัสไปรษณีย์ต้นทาง
+    main.child_window(auto_id="PostalCode").type_keys("10400")
     time.sleep(1)
 
-    # 4 พิมพ์สำเนาใบเสร็จ
-    main.child_window(title="สำเนาใบเสร็จ").click()
+    # เบอร์โทร
+    main.child_window(auto_id="PhoneNumber").type_keys("0812345678")
 
+    main.child_window(title="ถัดไป").click()
     time.sleep(2)
 
-    return tr_number
-
-
-# -----------------------------
-# FLOW 2 : TAX INVOICE
-# -----------------------------
-def create_tax_invoice(main, tr_number):
-
-    print("เริ่ม Flow 2 : ออกใบกำกับภาษี")
-
-    # เปิดเมนูใบกำกับภาษี
-    main.child_window(title="ใบกำกับภาษี").click()
-
-    time.sleep(2)
-
-    # กรอกเลข TR
-    tr_box = main.child_window(auto_id="txtTR")
-
-    tr_box.wait("visible", timeout=10)
-
-    tr_box.type_keys(tr_number)
-
+    # กำหนดขนาดเอง
+    main.child_window(title="กำหนดขนาดเอง").click()
     time.sleep(1)
 
-    # ค้นหา
-    main.child_window(title="ค้นหา").click()
+    main.child_window(title="ถัดไป").click()
+    time.sleep(1)
 
+    # ยืนยัน
+    main.child_window(auto_id="Confirmed").click()
+    time.sleep(1)
+
+    # น้ำหนัก
+    main.child_window(auto_id="EG_WEIGHT_INPUT_ELEMENT").type_keys("20")
+
+    # ขนาด
+    main.child_window(auto_id="Length").type_keys("25")
+    main.child_window(auto_id="Width").type_keys("14")
+    main.child_window(auto_id="Height").type_keys("0")
+
+    main.child_window(title="ถัดไป").click()
     time.sleep(2)
 
-    # ออกใบกำกับภาษี
-    main.child_window(title="ออกใบกำกับ").click()
+    # รหัสปลายทาง
+    main.child_window(auto_id="PostCodeDestination").type_keys("10400")
 
+    main.child_window(title="ดำเนินการ").click()
     time.sleep(3)
 
-    # พิมพ์สำเนาใบกำกับ
-    main.child_window(title="สำเนาใบกำกับ").click()
+    # เลือก Shipping
+    main.child_window(auto_id="ShippingService_8509").click()
 
+    main.child_window(title="ถัดไป").click()
+    time.sleep(1)
+
+    main.child_window(title="ถัดไป").click()
+    time.sleep(1)
+
+    main.child_window(title="ถัดไป").click()
+    time.sleep(1)
+
+    # ค้นหาที่อยู่
+    main.child_window(auto_id="SearchField1").type_keys("ปัตตานี")
+
+    main.child_window(title="ตกลง").click()
     time.sleep(2)
 
-    print("ออกใบกำกับภาษีสำเร็จ")
+    # ข้อมูลลูกค้า
+    main.child_window(auto_id="CustomerFirstName").type_keys("ทดสอบ")
+    main.child_window(auto_id="CustomerLastName").type_keys("ระบบ")
+
+    main.child_window(auto_id="AdministrativeArea").type_keys("กรุงเทพ")
+    main.child_window(auto_id="Locality").type_keys("พญาไท")
+    main.child_window(auto_id="DependentLocality").type_keys("พญาไท")
+
+    main.child_window(auto_id="StreetAddress1").type_keys("11")
+
+    main.child_window(auto_id="PhoneNumber").type_keys("0987654321")
+
+    main.child_window(title="ถัดไป").click()
+
+    # รอ popup
+    time.sleep(5)
+
+    # กดไม่
+    main.child_window(auto_id="No").click()
+
+    # รับเงิน
+    main.child_window(title="รับเงิน").click()
+
+    time.sleep(1)
+
+    # Fast Cash
+    main.child_window(title="Fast Cash").click()
+
+    print("ออกใบเสร็จสำเร็จ")
 
 
 # -----------------------------
@@ -110,15 +120,11 @@ def create_tax_invoice(main, tr_number):
 # -----------------------------
 def main():
 
-    app, main_window = connect_program()
+    app, main = connect_program()
 
-    # FLOW 1
-    tr_number = create_receipt(main_window)
+    send_parcel(main)
 
-    # FLOW 2
-    create_tax_invoice(main_window, tr_number)
-
-    print("Automation เสร็จสมบูรณ์")
+    print("Automation Flow สำเร็จ")
 
 
 if __name__ == "__main__":
