@@ -23,7 +23,7 @@ def connect_program():
 def send_parcel(main):
 
     # เข้าหน้า รับฝากสิ่งของ
-    main.child_window(title="รับฝากสิ่งของ", found_index=0).click()
+    main.child_window(title="รับฝากสิ่งของ", control_type="Button").click()
     time.sleep(2)
 
     # อ่านบัตรประชาชน
